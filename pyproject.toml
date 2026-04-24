@@ -1,0 +1,36 @@
+[project]
+name = "dslr"
+version = "0.1.0"
+description = "42 specialization phase data science project"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "matplotlib>=3.10.8",
+]
+
+[tool.ruff]
+# On active les règles de nommage (N) et de style (E, W, D)
+select = [
+    "E",   # Erreurs de style (espaces, lignes vides)
+    "W",   # Warnings de style
+    "F",   # Erreurs logiques (Pyflakes)
+    "N",   # PEP8 Naming conventions (C'est ce que vous cherchez !)
+    "I",   # Tri des imports
+    "PL",  # Pylint (règles supplémentaires)
+]
+
+[tool.ruff.lint.pep8-naming]
+# Vous pouvez ici personnaliser des exceptions si besoin
+ignore-names = []
+
+[tool.ruff.format]
+# Pour gérer les espaces entre fonctions et le style visuel
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.pyright]
+reportUnknownMemberType = false
+reportUnknownVariableType = false
+reportUnknownArgumentType = false
