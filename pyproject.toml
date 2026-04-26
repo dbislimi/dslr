@@ -6,7 +6,14 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "matplotlib>=3.10.8",
+    "numpy>=2.2.6",
 ]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.ruff]
 # On active les règles de nommage (N) et de style (E, W, D)
