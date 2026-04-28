@@ -75,7 +75,7 @@ def _clean_data(
     courses: list[str],
     means: dict[str, float],
     stds: dict[str, float],
-) -> tuple[FloatArray, StrArray]:
+) -> tuple[FloatArray, StrArray, FloatArray, StrArray]:
     clean_dict: dict[str, list[float]] = {}
 
     for course in courses:
@@ -94,7 +94,14 @@ def _clean_data(
     for course in courses:
         clean_dict[course] = np.array(clean_dict[course])[valid_rows].tolist()
     x_train = np.column_stack([clean_dict[course] for course in courses])
-    return x_train, y_labels
+    num_samples = x_train.shape[0]
+    indexes = np.random.permutation(num_samples)
+    split_idx = int(num_samples * 0.8)
+
+    train_idx, val_idx = indexes[:split_idx], indexes[split_idx:]
+    x_train_split, x_val = x_train[train_idx], x_train[val_idx]
+    y_train_split, y_val = y_labels[train_idx], y_labels[val_idx]
+    return x_train_split, y_train_split, x_val, y_val
 
 
 def sigmoid(z: FloatArray) -> FloatArray:
@@ -116,6 +123,17 @@ def gradient_descent(
         gradient = (1 / m) * np.dot(x.T, error)  # (n, m) . (m, 1) = (n, 1)
         theta = theta - (alpha * gradient)  # (n, 1) - (n, 1)
     return theta
+
+
+def evaluate(thetas: Thetas, x: FloatArray, y_labels: StrArray):
+    m = x.shape[0]
+    x_with_bias = np.column_stack((np.ones((m, 1)), x))
+    weights = np.column_stack([thetas[house] for house in HOUSES])
+    scores = np.dot(x_with_bias, weights)
+    preds_idx = np.argmax(scores, axis=1)
+    preds_labels = np.array([HOUSES[i] for i in preds_idx], dtype=str)
+    accuracy = float(np.mean(preds_labels == y_labels))
+    return accuracy
 
 
 def train(x_train: FloatArray, y_labels: StrArray) -> Thetas:
@@ -151,8 +169,9 @@ def main(filepath: str) -> None:
     to_float = convert_to_float(raw, courses, delete_none=False)
     means = _get_means(to_float)
     stds = _get_stds(to_float)
-    x_train, y_labels = _clean_data(to_float, houses, courses, means, stds)
-    thetas = train(x_train, y_labels)
+    x_train, y_train, x_val, y_val = _clean_data(to_float, houses, courses, means, stds)
+    thetas = train(x_train, y_train)
+    print(f"Accuracy: {evaluate(thetas, x_val, y_val)}")
     _save_weights(thetas, means, stds)
 
 
